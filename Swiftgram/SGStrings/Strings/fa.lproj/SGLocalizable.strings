@@ -23,3 +23,7 @@
 "Settings.Selection.SaveToCloudButton" = "دکمه ذخیره در فضای ابری";
 "Settings.Selection.HideSenderNamesButton" = "دکمه پنهان کردن نام فرستندگان";
 "Settings.wideGlassTextField" = "کادر متنی شیشه‌ای عریض";
+"Settings.BusinessBotPanelPlacement" = "پنل ربات تجاری";
+"Settings.BusinessBotPanelPlacement.telegram" = "به‌جای سنجاق‌شده‌ها";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "زیر سنجاق‌شده‌ها";
+"Settings.BusinessBotPanelPlacement.hidden" = "پنهان";

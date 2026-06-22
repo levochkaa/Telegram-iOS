@@ -165,3 +165,7 @@
 "Settings.swipeForVideoPIP" = "Videoyu kaydırarak PIP";
 "Settings.swipeForVideoPIP.Notice" = "Eğer etkinleştirildi ise videoyu kaydırmak, Piksel içinde Piksel modunda açılacaktır.";
 "Settings.videoControlsInFooter" = "Alt bilgide video kontrolleri";
+"Settings.BusinessBotPanelPlacement" = "İş botu paneli";
+"Settings.BusinessBotPanelPlacement.telegram" = "Sabitlenen yerine";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "Sabitlenen altında";
+"Settings.BusinessBotPanelPlacement.hidden" = "Gizli";

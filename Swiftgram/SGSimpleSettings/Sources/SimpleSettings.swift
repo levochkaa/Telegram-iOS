@@ -160,6 +160,7 @@ public class SGSimpleSettings {
         case forceBuiltInMic
         case secondsInMessages
         case hideChannelBottomButton
+        case businessBotTitlePanelPlacement
         case forceSystemSharing
         case confirmCalls
         case videoPIPSwipeDirection
@@ -221,6 +222,12 @@ public class SGSimpleSettings {
         case `default`
         case none
         case edit
+    }
+
+    public enum BusinessBotTitlePanelPlacement: String, CaseIterable {
+        case telegram
+        case swiftgram
+        case hidden
     }
     
     public enum VideoPIPSwipeDirection: String, CaseIterable {
@@ -322,6 +329,7 @@ public class SGSimpleSettings {
         Keys.wideGlassTextField.rawValue: false,
         Keys.forceEmojiTab.rawValue: false,
         Keys.hideChannelBottomButton.rawValue: false,
+        Keys.businessBotTitlePanelPlacement.rawValue: BusinessBotTitlePanelPlacement.swiftgram.rawValue,
         Keys.secondsInMessages.rawValue: false,
         Keys.forceSystemSharing.rawValue: false,
         Keys.confirmCalls.rawValue: true,
@@ -559,6 +567,9 @@ public class SGSimpleSettings {
     
     @UserDefault(key: Keys.hideChannelBottomButton.rawValue)
     public var hideChannelBottomButton: Bool
+
+    @UserDefault(key: Keys.businessBotTitlePanelPlacement.rawValue)
+    public var businessBotTitlePanelPlacement: String
 
     @UserDefault(key: Keys.forceSystemSharing.rawValue)
     public var forceSystemSharing: Bool

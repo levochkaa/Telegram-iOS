@@ -165,3 +165,7 @@
 "Settings.swipeForVideoPIP" = "Vídeo PIP amb desplaçament";
 "Settings.swipeForVideoPIP.Notice" = "Si està habilitat, desplaçar el vídeo l'obrirà en mode Imatge en Imatge.";
 "Settings.videoControlsInFooter" = "Controls de vídeo al peu de pàgina";
+"Settings.BusinessBotPanelPlacement" = "Panell del bot empresarial";
+"Settings.BusinessBotPanelPlacement.telegram" = "En lloc dels fixats";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "Sota els fixats";
+"Settings.BusinessBotPanelPlacement.hidden" = "Amagat";

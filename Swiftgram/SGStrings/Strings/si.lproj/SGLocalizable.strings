@@ -16,3 +16,7 @@
 "Settings.Selection.SaveToCloudButton" = "මේඝයට සුරකින්න බොත්තම";
 "Settings.Selection.HideSenderNamesButton" = "යවන්නන්ගේ නම් සඟවන්න බොත්තම";
 "Settings.wideGlassTextField" = "පුළුල් වීදුරු පෙළ ක්ෂේත්‍රය";
+"Settings.BusinessBotPanelPlacement" = "ව්‍යාපාර බොට් පැනලය";
+"Settings.BusinessBotPanelPlacement.telegram" = "ඇලවූව වෙනුවට";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "ඇලවූවට පහළින්";
+"Settings.BusinessBotPanelPlacement.hidden" = "සඟවා ඇත";

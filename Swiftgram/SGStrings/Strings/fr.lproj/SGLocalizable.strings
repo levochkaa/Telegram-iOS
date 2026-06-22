@@ -150,3 +150,7 @@
 
 "Settings.hideChannelBottomButton" = "Masquer le panneau inférieur du canal";
 "Settings.videoControlsInFooter" = "Contrôles vidéo dans le pied de page";
+"Settings.BusinessBotPanelPlacement" = "Panneau du bot pro";
+"Settings.BusinessBotPanelPlacement.telegram" = "À la place des épinglés";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "Sous les épinglés";
+"Settings.BusinessBotPanelPlacement.hidden" = "Masqué";

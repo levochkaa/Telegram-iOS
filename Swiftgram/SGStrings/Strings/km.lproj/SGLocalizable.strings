@@ -22,3 +22,7 @@
 "Settings.Selection.SaveToCloudButton" = "ប៊ូតុងរក្សាទុកទៅពពក";
 "Settings.Selection.HideSenderNamesButton" = "ប៊ូតុងលាក់ឈ្មោះអ្នកផ្ញើ";
 "Settings.wideGlassTextField" = "ប្រអប់អត្ថបទកញ្ចក់ទូលាយ";
+"Settings.BusinessBotPanelPlacement" = "ផ្ទាំងបូតអាជីវកម្ម";
+"Settings.BusinessBotPanelPlacement.telegram" = "ជំនួសសារខ្ទាស់";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "ក្រោមសារខ្ទាស់";
+"Settings.BusinessBotPanelPlacement.hidden" = "បានលាក់";

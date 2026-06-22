@@ -165,3 +165,7 @@
 "Settings.swipeForVideoPIP" = "Video PIP med sveip";
 "Settings.swipeForVideoPIP.Notice" = "Hvis aktivert, vil sveipingen av video åpne den i bilde-i-bilde-modus.";
 "Settings.videoControlsInFooter" = "Videokontroller i bunnteksten";
+"Settings.BusinessBotPanelPlacement" = "Bedriftsbotpanel";
+"Settings.BusinessBotPanelPlacement.telegram" = "I stedet for festet";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "Under festet";
+"Settings.BusinessBotPanelPlacement.hidden" = "Skjult";

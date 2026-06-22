@@ -165,3 +165,7 @@
 "Settings.swipeForVideoPIP" = "Video PIP med svep";
 "Settings.swipeForVideoPIP.Notice" = "Om aktiverat, kommer svepning av video att öppna det i bild-i-bild-läge.";
 "Settings.videoControlsInFooter" = "Videokontroller i sidfoten";
+"Settings.BusinessBotPanelPlacement" = "Företagsbotpanel";
+"Settings.BusinessBotPanelPlacement.telegram" = "I stället för fästa";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "Under fästa";
+"Settings.BusinessBotPanelPlacement.hidden" = "Dold";

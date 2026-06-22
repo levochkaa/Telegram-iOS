@@ -165,3 +165,7 @@
 "Settings.swipeForVideoPIP" = "Видео PIP са свлачење";
 "Settings.swipeForVideoPIP.Notice" = "Ако је омогућено, померање видеа ће га отворити у режиму слике у слици.";
 "Settings.videoControlsInFooter" = "Контроле видеа у подножју";
+"Settings.BusinessBotPanelPlacement" = "Панел пословног бота";
+"Settings.BusinessBotPanelPlacement.telegram" = "Уместо закачених";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "Испод закачених";
+"Settings.BusinessBotPanelPlacement.hidden" = "Сакривено";

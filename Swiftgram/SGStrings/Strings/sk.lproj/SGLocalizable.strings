@@ -18,3 +18,7 @@
 "Settings.Selection.SaveToCloudButton" = "Tlačidlo Uložiť na Cloud";
 "Settings.Selection.HideSenderNamesButton" = "Tlačidlo Skryť mená odosielateľov";
 "Settings.wideGlassTextField" = "Široké sklenené textové pole";
+"Settings.BusinessBotPanelPlacement" = "Panel firemného bota";
+"Settings.BusinessBotPanelPlacement.telegram" = "Namiesto pripnutých";
+"Settings.BusinessBotPanelPlacement.swiftgram" = "Pod pripnutými";
+"Settings.BusinessBotPanelPlacement.hidden" = "Skryté";
