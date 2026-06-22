@@ -25,7 +25,7 @@ extension PeerInfoScreenNode {
                 return
             }
             
-            if strongSelf.isMyProfile {
+            if strongSelf.isMyProfile || strongSelf.isSettings { // MARK: Swiftgram
                 navigationController.pushViewController(c)
             } else {
                 var updatedControllers = navigationController.viewControllers
