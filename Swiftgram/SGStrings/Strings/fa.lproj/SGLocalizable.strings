@@ -19,3 +19,6 @@
 "Chat.ID" = "شناسه";
 "Chat.ID.Copy" = "کپی شناسه";
 "Chat.ID.Copied" = "شناسه در کلیپ‌بورد کپی شد.";
+"Settings.MessageSelection.Header" = "انتخاب پیام‌ها";
+"Settings.Selection.SaveToCloudButton" = "دکمه ذخیره در فضای ابری";
+"Settings.Selection.HideSenderNamesButton" = "دکمه پنهان کردن نام فرستندگان";

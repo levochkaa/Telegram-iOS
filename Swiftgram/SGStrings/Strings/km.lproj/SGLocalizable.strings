@@ -18,3 +18,6 @@
 "Chat.ID" = "ID";
 "Chat.ID.Copy" = "ចម្លង ID";
 "Chat.ID.Copied" = "បានចម្លង ID ទៅក្តារតម្បៀតខ្ទាស់។";
+"Settings.MessageSelection.Header" = "ការជ្រើសរើសសារ";
+"Settings.Selection.SaveToCloudButton" = "ប៊ូតុងរក្សាទុកទៅពពក";
+"Settings.Selection.HideSenderNamesButton" = "ប៊ូតុងលាក់ឈ្មោះអ្នកផ្ញើ";

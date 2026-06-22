@@ -20,3 +20,6 @@
 "Chat.ID" = "ID";
 "Chat.ID.Copy" = "کۆپی کردنی ID";
 "Chat.ID.Copied" = "ID بۆ کلیپبۆرد کۆپی کرا.";
+"Settings.MessageSelection.Header" = "هەڵبژاردنی پەیامەکان";
+"Settings.Selection.SaveToCloudButton" = "دوگمەی هەڵگرتن لە کڵاود";
+"Settings.Selection.HideSenderNamesButton" = "دوگمەی شاردنەوەی ناوی نێرەرەکان";
