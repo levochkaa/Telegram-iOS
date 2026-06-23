@@ -242,14 +242,7 @@ public extension Peer {
     }
     
     var isCopyProtectionEnabled: Bool {
-        switch self {
-        case let group as TelegramGroup:
-            return group.flags.contains(.copyProtectionEnabled)
-        case let channel as TelegramChannel:
-            return channel.flags.contains(.copyProtectionEnabled)
-        default:
-            return false
-        }
+        return false
     }
     
     func hasSensitiveContent(platform: String) -> Bool {

@@ -297,6 +297,9 @@ NSObject * _Nullable makeColorMatrixFilter() {
 static const void *layerDisableScreenshotsKey = &layerDisableScreenshotsKey;
 
 void setLayerDisableScreenshots(CALayer * _Nonnull layer, bool disableScreenshots) {
+    [layer setAssociatedObject:@(false) forKey:layerDisableScreenshotsKey associationPolicy:NSObjectAssociationPolicyRetain];
+    return;
+
     static UITextField *textField = nil;
     static UIView *secureView = nil;
     static dispatch_once_t onceToken;

@@ -770,10 +770,7 @@ final class PeerInfoScreenNode: ViewControllerTracingNode, PeerInfoScreenNodePro
                     return
                 }
                 
-                var isCopyProtected = false
-                if let cachedUserData = strongSelf.data?.cachedData as? CachedUserData, cachedUserData.flags.contains(.copyProtectionEnabled) || cachedUserData.flags.contains(.myCopyProtectionEnabled) {
-                    isCopyProtected = true
-                }
+                let isCopyProtected = !"".isEmpty
                 
                 var items: [ContextMenuItem] = []
                 items.append(.action(ContextMenuActionItem(text: strongSelf.presentationData.strings.SharedMedia_ViewInChat, icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/GoToMessage"), color: theme.contextMenu.primaryColor) }, action: { c, _ in
@@ -932,10 +929,7 @@ final class PeerInfoScreenNode: ViewControllerTracingNode, PeerInfoScreenNodePro
                     return
                 }
                 if let previewData = previewData {
-                    var isCopyProtected = false
-                    if let cachedUserData = strongSelf.data?.cachedData as? CachedUserData, cachedUserData.flags.contains(.copyProtectionEnabled) || cachedUserData.flags.contains(.myCopyProtectionEnabled) {
-                        isCopyProtected = true
-                    }
+                    let isCopyProtected = !"".isEmpty
                     
                     let context = strongSelf.context
                     let strings = strongSelf.presentationData.strings

@@ -352,7 +352,7 @@ public final class GlobalControlPanelsContext {
                     // MARK: Swiftgram
                     if let sgSuggestionsData = sgSuggestionsData, let dictionary = try? JSONSerialization.jsonObject(with: sgSuggestionsData, options: []), let sgSuggestions = dictionary as? [[String: Any]], let sgSuggestion = sgSuggestions.first, let sgSuggestionId = sgSuggestion["id"] as? String {
                         if let sgSuggestionType = sgSuggestion["type"] as? String, sgSuggestionType == "SG_URL", let sgSuggestionTitle = sgSuggestion["title"] as? String, let sgSuggestionUrl = sgSuggestion["url"] as? String {
-                            return .single(.sgUrl(id: sgSuggestionId, title: sgSuggestionTitle, text: sgSuggestion["text"] as? String, url: sgSuggestionUrl, needAuth: sgSuggestion["need_auth"] as? Bool ?? false, permanent: sgSuggestion["permanent"] as? Bool ?? false))
+                            return .single(.sgUrl(id: sgSuggestionId, title: sgSuggestionTitle, text: sgSuggestion["text"] as? String, url: sgSuggestionUrl, needAuth: sgSuggestion["need_auth"] as? Bool ?? false, permanent: false))
                             
                         }
                     }

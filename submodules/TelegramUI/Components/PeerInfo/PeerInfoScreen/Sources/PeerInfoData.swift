@@ -2280,13 +2280,7 @@ func peerInfoScreenData(
 }
 
 func peerInfoIsCopyProtected(data: PeerInfoScreenData) -> Bool {
-    var isCopyProtected = false
-    if let cachedUserData = data.cachedData as? CachedUserData, cachedUserData.flags.contains(.copyProtectionEnabled) || cachedUserData.flags.contains(.myCopyProtectionEnabled) {
-        isCopyProtected = true
-    } else if let peer = data.peer, peer.isCopyProtectionEnabled {
-        isCopyProtected = true
-    }
-    return isCopyProtected
+    return false
 }
 
 func canEditPeerInfo(context: AccountContext, peer: EnginePeer?, chatLocation: ChatLocation, threadData: MessageHistoryThreadData?) -> Bool {

@@ -49,6 +49,98 @@ private let forwardImage = generateTintedImage(image: UIImage(bundleImageName: "
 
 private let cloudFetchIcon = generateTintedImage(image: UIImage(bundleImageName: "Chat/Message/FileCloudFetch"), color: UIColor.white)
 
+// MARK: Swiftgram
+private func canForceGallerySaveMedia(_ media: EngineRawMedia) -> Bool {
+    if media is TelegramMediaImage {
+        return true
+    } else if let file = media as? TelegramMediaFile {
+        return file.isVideo || file.mimeType.hasPrefix("image/") || file.mimeType.hasPrefix("video/")
+    } else if let webpage = media as? TelegramMediaWebpage, case let .Loaded(content) = webpage.content {
+        if let file = content.file, file.isVideo || file.mimeType.hasPrefix("image/") || file.mimeType.hasPrefix("video/") {
+            return true
+        }
+        return content.image != nil
+    }
+    return false
+}
+
+// MARK: Swiftgram
+private func canForceGallerySaveAction(message: EngineRawMessage, mediaSubject: GalleryMediaSubject?) -> Bool {
+    guard let media = selectedMediaForMessage(message: message, mediaSubject: mediaSubject) else {
+        return false
+    }
+    return canForceGallerySaveMedia(media)
+}
+
+// MARK: Swiftgram
+private func fullPaidGalleryMediaForMessage(_ message: EngineRawMessage) -> [EngineRawMedia] {
+    guard let paidContent = message.paidContent else {
+        return []
+    }
+    var result: [EngineRawMedia] = []
+    for extendedMedia in paidContent.extendedMedia {
+        if case let .full(media) = extendedMedia, canForceGallerySaveMedia(media) {
+            result.append(media)
+        }
+    }
+    return result
+}
+
+// MARK: Swiftgram
+private func galleryMediaKindFlags(_ media: EngineRawMedia) -> (image: Bool, video: Bool, other: Bool) {
+    if media is TelegramMediaImage {
+        return (true, false, false)
+    } else if let file = media as? TelegramMediaFile {
+        if file.isVideo || file.mimeType.hasPrefix("video/") {
+            return (false, true, false)
+        } else if file.mimeType.hasPrefix("image/") {
+            return (true, false, false)
+        }
+    } else if let webpage = media as? TelegramMediaWebpage, case let .Loaded(content) = webpage.content {
+        if let file = content.file {
+            return galleryMediaKindFlags(file)
+        } else if content.image != nil {
+            return (true, false, false)
+        }
+    }
+    return (false, false, true)
+}
+
+// MARK: Swiftgram
+private func galleryShareTexts(strings: PresentationStrings, media: [EngineRawMedia]) -> (single: String, multiple: String) {
+    var hasImage = false
+    var hasVideo = false
+    var hasOther = false
+
+    for item in media {
+        let flags = galleryMediaKindFlags(item)
+        hasImage = hasImage || flags.image
+        hasVideo = hasVideo || flags.video
+        hasOther = hasOther || flags.other
+    }
+
+    if hasImage && !hasVideo && !hasOther {
+        return (strings.Media_ShareThisPhoto, strings.Media_SharePhoto(Int32(media.count)))
+    } else if hasVideo && !hasImage && !hasOther {
+        return (strings.Media_ShareThisVideo, strings.Media_ShareVideo(Int32(media.count)))
+    } else {
+        return (strings.Media_ShareItem(1), strings.Media_ShareItem(Int32(media.count)))
+    }
+}
+
+// MARK: Swiftgram
+private func gallerySaveCompletionText(strings: PresentationStrings, media: [EngineRawMedia]) -> String? {
+    if media.count == 1, let item = media.first {
+        let flags = galleryMediaKindFlags(item)
+        if flags.image {
+            return strings.Gallery_ImageSaved
+        } else if flags.video {
+            return strings.Gallery_VideoSaved
+        }
+    }
+    return strings.Gallery_ImagesAndVideosSaved
+}
+
 enum ChatItemGalleryFooterContent: Equatable {
     case info
     case fetch(status: EngineMediaResource.FetchStatus, seekable: Bool)
@@ -1076,7 +1168,7 @@ final class ChatItemGalleryFooterContentNode: GalleryFooterContentNode, ASScroll
             }
             displayDeleteButton = canDelete
 
-            displayActionButton = canShare
+            displayActionButton = canShare || canForceGallerySaveAction(message: message, mediaSubject: mediaSubject) // MARK: Swiftgram
             displayEditButton = canEdit
             
             if let adAttribute = message.adAttribute {
@@ -1856,7 +1948,11 @@ final class ChatItemGalleryFooterContentNode: GalleryFooterContentNode, ASScroll
                     if messages.count == 1 {
                         var subject: ShareControllerSubject = ShareControllerSubject.messages(messages.map { $0._asMessage() })
                         
-                        var media = messages[0].media.first
+                        let rawMessage = messages[0]._asMessage()
+                        var media = selectedMediaForMessage(message: rawMessage, mediaSubject: strongSelf.mediaSubject) // MARK: Swiftgram
+                        if media == nil {
+                            media = messages[0].media.first
+                        }
                         if let poll = media as? TelegramMediaPoll {
                             switch strongSelf.mediaSubject {
                             case .pollDescription:
@@ -1874,7 +1970,9 @@ final class ChatItemGalleryFooterContentNode: GalleryFooterContentNode, ASScroll
                         
                         if let m = media {
                             if let image = media as? TelegramMediaImage {
-                                subject = .image(image.representations.map({ ImageRepresentationWithReference(representation: $0, reference: .media(media: .message(message: MessageReference(messages[0]._asMessage()), media: m), resource: $0.resource)) }))
+                                subject = .image(image.representations.map({ ImageRepresentationWithReference(representation: $0, reference: .media(media: .message(message: MessageReference(rawMessage), media: m), resource: $0.resource)) }))
+                                preferredAction = .saveToCameraRoll
+                                actionCompletionText = strongSelf.presentationData.strings.Gallery_ImageSaved
                             } else if let webpage = m as? TelegramMediaWebpage, case let .Loaded(content) = webpage.content {
                                 if content.embedType == "iframe" {
                                     let item = OpenInItem.url(url: content.url)
@@ -1907,7 +2005,7 @@ final class ChatItemGalleryFooterContentNode: GalleryFooterContentNode, ASScroll
                                     }
                                 }
                             } else if let file = m as? TelegramMediaFile {
-                                subject = .media(.message(message: MessageReference(messages[0]._asMessage()), media: file), strongSelf.shareMediaParameters?())
+                                subject = .media(.message(message: MessageReference(rawMessage), media: file), strongSelf.shareMediaParameters?())
                                 if file.isAnimated {
                                     if messages[0].id.peerId.namespace == Namespaces.Peer.SecretChat {
                                         preferredAction = .default
@@ -1955,88 +2053,111 @@ final class ChatItemGalleryFooterContentNode: GalleryFooterContentNode, ASScroll
                             }
                         }
                         
-                        var hasExternalShare = true
-                        for media in currentMessage.media {
-                            if let _ = media as? TelegramMediaPaidContent {
-                                hasExternalShare = false
-                                break
-                            } else if let invoice = media as? TelegramMediaInvoice, let _ = invoice.extendedMedia {
-                                hasExternalShare = false
-                                break
-                            }
-                        }
+                        let hasExternalShare = "".isEmpty // MARK: Swiftgram
                         
-                        let shareController = strongSelf.context.sharedContext.makeShareController(context: strongSelf.context, params: ShareControllerParams(subject: subject, preferredAction: preferredAction, externalShare: hasExternalShare, forceTheme: forceTheme, actionCompleted: { [weak self] in
-                            if let strongSelf = self, let actionCompletionText = actionCompletionText {
-                                let presentationData = strongSelf.context.sharedContext.currentPresentationData.with { $0 }
-                                strongSelf.controllerInteraction?.presentController(UndoOverlayController(presentationData: presentationData, content: .mediaSaved(text: actionCompletionText), elevatedLayout: true, animateInAsReplacement: false, action: { _ in return true }), nil)
-                            }
-                        }, dismissed: { [weak self] _ in
-                            self?.interacting?(false)
-                        }, completed: { [weak self] peerIds in
-                            if let strongSelf = self {
-                                let _ = (strongSelf.context.engine.data.get(
-                                    EngineDataList(
-                                        peerIds.map(TelegramEngine.EngineData.Item.Peer.Peer.init)
-                                    )
-                                )
-                                |> deliverOnMainQueue).start(next: { [weak self] peerList in
-                                    if let strongSelf = self {
-                                        let peers = peerList.compactMap { $0 }
-                                        let presentationData = strongSelf.context.sharedContext.currentPresentationData.with { $0 }
-
-                                        let text: String
-                                        var savedMessages = false
-                                        if peerIds.count == 1, let peerId = peerIds.first, peerId == strongSelf.context.account.peerId {
-                                            text = messages.count == 1 ? presentationData.strings.Conversation_ForwardTooltip_SavedMessages_One : presentationData.strings.Conversation_ForwardTooltip_SavedMessages_Many
-                                            savedMessages = true
-                                        } else {
-                                            if peers.count == 1, let peer = peers.first {
-                                                var peerName = peer.id == strongSelf.context.account.peerId ? presentationData.strings.DialogList_SavedMessages : peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
-                                                peerName = peerName.replacingOccurrences(of: "**", with: "")
-                                                text = messages.count == 1 ? presentationData.strings.Conversation_ForwardTooltip_Chat_One(peerName).string : presentationData.strings.Conversation_ForwardTooltip_Chat_Many(peerName).string
-                                            } else if peers.count == 2, let firstPeer = peers.first, let secondPeer = peers.last {
-                                                var firstPeerName = firstPeer.id == strongSelf.context.account.peerId ? presentationData.strings.DialogList_SavedMessages : firstPeer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
-                                                firstPeerName = firstPeerName.replacingOccurrences(of: "**", with: "")
-                                                var secondPeerName = secondPeer.id == strongSelf.context.account.peerId ? presentationData.strings.DialogList_SavedMessages : secondPeer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
-                                                secondPeerName = secondPeerName.replacingOccurrences(of: "**", with: "")
-                                                text = messages.count == 1 ? presentationData.strings.Conversation_ForwardTooltip_TwoChats_One(firstPeerName, secondPeerName).string : presentationData.strings.Conversation_ForwardTooltip_TwoChats_Many(firstPeerName, secondPeerName).string
-                                            } else if let peer = peers.first {
-                                                var peerName = peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
-                                                peerName = peerName.replacingOccurrences(of: "**", with: "")
-                                                text = messages.count == 1 ? presentationData.strings.Conversation_ForwardTooltip_ManyChats_One(peerName, "\(peers.count - 1)").string : presentationData.strings.Conversation_ForwardTooltip_ManyChats_Many(peerName, "\(peers.count - 1)").string
-                                            } else {
-                                                text = ""
-                                            }
-                                        }
-
-                                        strongSelf.controllerInteraction?.presentController(UndoOverlayController(presentationData: presentationData, content: .forward(savedMessages: savedMessages, text: text), elevatedLayout: true, animateInAsReplacement: true, action: { _ in return false }), nil)
-                                    }
-                                })
-                            }
-                        }, onMediaTimestampLinkCopied: { [weak self] timestamp in
-                            guard let self else {
-                                return
-                            }
-                            let presentationData = self.context.sharedContext.currentPresentationData.with { $0 }
-                            let text: String
-                            if let timestamp {
-                                let startTimeString: String
-                                let hours = timestamp / (60 * 60)
-                                let minutes = timestamp % (60 * 60) / 60
-                                let seconds = timestamp % 60
-                                if hours != 0 {
-                                    startTimeString = String(format: "%d:%02d:%02d", hours, minutes, seconds)
-                                } else {
-                                    startTimeString = String(format: "%d:%02d", minutes, seconds)
+                        let presentShareController: (ShareControllerSubject, ShareControllerPreferredAction, String?, Bool) -> Void = { subject, preferredAction, actionCompletionText, hasExternalShare in
+                            let shareController = strongSelf.context.sharedContext.makeShareController(context: strongSelf.context, params: ShareControllerParams(subject: subject, preferredAction: preferredAction, externalShare: hasExternalShare, forceTheme: forceTheme, actionCompleted: { [weak self] in
+                                if let strongSelf = self, let actionCompletionText = actionCompletionText {
+                                    let presentationData = strongSelf.context.sharedContext.currentPresentationData.with { $0 }
+                                    strongSelf.controllerInteraction?.presentController(UndoOverlayController(presentationData: presentationData, content: .mediaSaved(text: actionCompletionText), elevatedLayout: true, animateInAsReplacement: false, action: { _ in return true }), nil)
                                 }
-                                text = presentationData.strings.Conversation_VideoTimeLinkCopied(startTimeString).string
-                            } else {
-                                text = presentationData.strings.Conversation_LinkCopied
+                            }, dismissed: { [weak self] _ in
+                                self?.interacting?(false)
+                            }, completed: { [weak self] peerIds in
+                                if let strongSelf = self {
+                                    let _ = (strongSelf.context.engine.data.get(
+                                        EngineDataList(
+                                            peerIds.map(TelegramEngine.EngineData.Item.Peer.Peer.init)
+                                        )
+                                    )
+                                    |> deliverOnMainQueue).start(next: { [weak self] peerList in
+                                        if let strongSelf = self {
+                                            let peers = peerList.compactMap { $0 }
+                                            let presentationData = strongSelf.context.sharedContext.currentPresentationData.with { $0 }
+
+                                            let text: String
+                                            var savedMessages = false
+                                            if peerIds.count == 1, let peerId = peerIds.first, peerId == strongSelf.context.account.peerId {
+                                                text = messages.count == 1 ? presentationData.strings.Conversation_ForwardTooltip_SavedMessages_One : presentationData.strings.Conversation_ForwardTooltip_SavedMessages_Many
+                                                savedMessages = true
+                                            } else {
+                                                if peers.count == 1, let peer = peers.first {
+                                                    var peerName = peer.id == strongSelf.context.account.peerId ? presentationData.strings.DialogList_SavedMessages : peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
+                                                    peerName = peerName.replacingOccurrences(of: "**", with: "")
+                                                    text = messages.count == 1 ? presentationData.strings.Conversation_ForwardTooltip_Chat_One(peerName).string : presentationData.strings.Conversation_ForwardTooltip_Chat_Many(peerName).string
+                                                } else if peers.count == 2, let firstPeer = peers.first, let secondPeer = peers.last {
+                                                    var firstPeerName = firstPeer.id == strongSelf.context.account.peerId ? presentationData.strings.DialogList_SavedMessages : firstPeer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
+                                                    firstPeerName = firstPeerName.replacingOccurrences(of: "**", with: "")
+                                                    var secondPeerName = secondPeer.id == strongSelf.context.account.peerId ? presentationData.strings.DialogList_SavedMessages : secondPeer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
+                                                    secondPeerName = secondPeerName.replacingOccurrences(of: "**", with: "")
+                                                    text = messages.count == 1 ? presentationData.strings.Conversation_ForwardTooltip_TwoChats_One(firstPeerName, secondPeerName).string : presentationData.strings.Conversation_ForwardTooltip_TwoChats_Many(firstPeerName, secondPeerName).string
+                                                } else if let peer = peers.first {
+                                                    var peerName = peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
+                                                    peerName = peerName.replacingOccurrences(of: "**", with: "")
+                                                    text = messages.count == 1 ? presentationData.strings.Conversation_ForwardTooltip_ManyChats_One(peerName, "\(peers.count - 1)").string : presentationData.strings.Conversation_ForwardTooltip_ManyChats_Many(peerName, "\(peers.count - 1)").string
+                                                } else {
+                                                    text = ""
+                                                }
+                                            }
+
+                                            strongSelf.controllerInteraction?.presentController(UndoOverlayController(presentationData: presentationData, content: .forward(savedMessages: savedMessages, text: text), elevatedLayout: true, animateInAsReplacement: true, action: { _ in return false }), nil)
+                                        }
+                                    })
+                                }
+                            }, onMediaTimestampLinkCopied: { [weak self] timestamp in
+                                guard let self else {
+                                    return
+                                }
+                                let presentationData = self.context.sharedContext.currentPresentationData.with { $0 }
+                                let text: String
+                                if let timestamp {
+                                    let startTimeString: String
+                                    let hours = timestamp / (60 * 60)
+                                    let minutes = timestamp % (60 * 60) / 60
+                                    let seconds = timestamp % 60
+                                    if hours != 0 {
+                                        startTimeString = String(format: "%d:%02d:%02d", hours, minutes, seconds)
+                                    } else {
+                                        startTimeString = String(format: "%d:%02d", minutes, seconds)
+                                    }
+                                    text = presentationData.strings.Conversation_VideoTimeLinkCopied(startTimeString).string
+                                } else {
+                                    text = presentationData.strings.Conversation_LinkCopied
+                                }
+                                self.controllerInteraction?.presentController(UndoOverlayController(presentationData: presentationData, content: .linkCopied(title: nil, text: text), elevatedLayout: true, animateInAsReplacement: false, action: { _ in return true }), nil)
+                            }))
+                            strongSelf.controllerInteraction?.presentController(shareController, nil)
+                        }
+
+                        // MARK: Swiftgram
+                        let paidMedia = fullPaidGalleryMediaForMessage(rawMessage)
+                        if paidMedia.count > 1 {
+                            let shareTexts = galleryShareTexts(strings: presentationData.strings, media: paidMedia)
+                            let actionSheet = ActionSheetController(presentationData: presentationData)
+                            actionSheet.dismissed = { [weak self] _ in
+                                self?.interacting?(false)
                             }
-                            self.controllerInteraction?.presentController(UndoOverlayController(presentationData: presentationData, content: .linkCopied(title: nil, text: text), elevatedLayout: true, animateInAsReplacement: false, action: { _ in return true }), nil)
-                        }))
-                        strongSelf.controllerInteraction?.presentController(shareController, nil)
+                            let items: [ActionSheetItem] = [
+                                ActionSheetButtonItem(title: shareTexts.single, color: .accent, action: { [weak actionSheet] in
+                                    actionSheet?.dismissAnimated()
+                                    presentShareController(subject, preferredAction, actionCompletionText, hasExternalShare)
+                                }),
+                                ActionSheetButtonItem(title: shareTexts.multiple, color: .accent, action: { [weak actionSheet] in
+                                    actionSheet?.dismissAnimated()
+                                    presentShareController(.messages([rawMessage]), .saveToCameraRoll, gallerySaveCompletionText(strings: presentationData.strings, media: paidMedia), hasExternalShare)
+                                })
+                            ]
+                            actionSheet.setItemGroups([ActionSheetItemGroup(items: items),
+                                ActionSheetItemGroup(items: [
+                                    ActionSheetButtonItem(title: presentationData.strings.Common_Cancel, color: .accent, font: .bold, action: { [weak actionSheet] in
+                                        actionSheet?.dismissAnimated()
+                                    })
+                                ])
+                            ])
+                            strongSelf.controllerInteraction?.presentController(actionSheet, nil)
+                        } else {
+                            presentShareController(subject, preferredAction, actionCompletionText, hasExternalShare)
+                        }
                     } else {
                         var singleText = presentationData.strings.Media_ShareItem(1)
                         var multipleText = presentationData.strings.Media_ShareItem(Int32(messages.count))

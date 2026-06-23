@@ -164,7 +164,7 @@ public extension Stories {
             self.embeddedStickers = embeddedStickers
             self.pin = pin
             self.privacy = privacy
-            self.isForwardingDisabled = isForwardingDisabled
+            self.isForwardingDisabled = false
             self.period = period
             self.randomId = randomId
             self.forwardInfo = forwardInfo
@@ -193,7 +193,7 @@ public extension Stories {
             
             self.pin = try container.decode(Bool.self, forKey: .pin)
             self.privacy = try container.decode(EngineStoryPrivacy.self, forKey: .privacy)
-            self.isForwardingDisabled = try container.decodeIfPresent(Bool.self, forKey: .isForwardingDisabled) ?? false
+            self.isForwardingDisabled = false
             self.period = try container.decode(Int32.self, forKey: .period)
             self.randomId = try container.decode(Int64.self, forKey: .randomId)
             

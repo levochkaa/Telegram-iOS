@@ -73,7 +73,7 @@ private final class DownloadedMediaStoreContext {
                 }
                 return (entry, peer, cachedData)
             }
-            |> map { storeSettings, peer, cachedData -> Bool in
+            |> map { storeSettings, peer, _ -> Bool in
                 guard let peer = peer else {
                     return false
                 }
@@ -85,19 +85,12 @@ private final class DownloadedMediaStoreContext {
                     let peerTypeValue: MediaAutoSaveSettings.PeerType
                     switch peer {
                     case .user:
-                        if let cachedUserData = cachedData as? CachedUserData, cachedUserData.flags.contains(.copyProtectionEnabled) || cachedUserData.flags.contains(.myCopyProtectionEnabled) {
-                            return false
-                        }
                         peerTypeValue = .users
                     case .secretChat:
                         return false
                     case .legacyGroup:
                         peerTypeValue = .groups
                     case let .channel(channel):
-                        if channel.flags.contains(.copyProtectionEnabled) {
-                            return false
-                        }
-                        
                         if case .broadcast = channel.info {
                             peerTypeValue = .channels
                         } else {

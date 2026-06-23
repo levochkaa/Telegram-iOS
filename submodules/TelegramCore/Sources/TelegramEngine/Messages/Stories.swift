@@ -338,7 +338,7 @@ public enum Stories {
             self.isCloseFriends = isCloseFriends
             self.isContacts = isContacts
             self.isSelectedContacts = isSelectedContacts
-            self.isForwardingDisabled = isForwardingDisabled
+            self.isForwardingDisabled = false
             self.isEdited = isEdited
             self.isMy = isMy
             self.myReaction = myReaction
@@ -387,7 +387,7 @@ public enum Stories {
             self.isCloseFriends = try container.decodeIfPresent(Bool.self, forKey: .isCloseFriends) ?? false
             self.isContacts = try container.decodeIfPresent(Bool.self, forKey: .isContacts) ?? false
             self.isSelectedContacts = try container.decodeIfPresent(Bool.self, forKey: .isSelectedContacts) ?? false
-            self.isForwardingDisabled = try container.decodeIfPresent(Bool.self, forKey: .isForwardingDisabled) ?? false
+            self.isForwardingDisabled = false
             self.isEdited = try container.decodeIfPresent(Bool.self, forKey: .isEdited) ?? false
             self.isMy = try container.decodeIfPresent(Bool.self, forKey: .isMy) ?? false
             self.myReaction = try container.decodeIfPresent(MessageReaction.Reaction.self, forKey: .myReaction)

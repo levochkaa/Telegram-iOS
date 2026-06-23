@@ -16,7 +16,7 @@ private func parseSGConfig(_ jsonString: String) -> SGConfig {
     return (try? decoder.decode(SGConfig.self, from: jsonData)) ?? SGConfig()
 }
 
-private let baseAppBundleId = Bundle.main.bundleIdentifier!
+private let baseAppBundleId = "app.swiftgram.ios"
 private let buildConfig = BuildConfig(baseAppBundleId: baseAppBundleId)
 public let SG_CONFIG: SGConfig = parseSGConfig(buildConfig.sgConfig)
 public let SG_API_WEBAPP_URL_PARSED = URL(string: SG_CONFIG.webappUrl)!

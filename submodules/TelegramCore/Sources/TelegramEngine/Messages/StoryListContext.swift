@@ -133,7 +133,7 @@ public final class EngineStoryItem: Equatable {
         self.isCloseFriends = isCloseFriends
         self.isContacts = isContacts
         self.isSelectedContacts = isSelectedContacts
-        self.isForwardingDisabled = isForwardingDisabled
+        self.isForwardingDisabled = false
         self.isEdited = isEdited
         self.isMy = isMy
         self.myReaction = myReaction

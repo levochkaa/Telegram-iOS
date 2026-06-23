@@ -810,7 +810,7 @@ private struct ChannelVisibilityControllerState: Equatable {
         self.revealedRevokePeerId = revealedRevokePeerId
         self.revokingPeerId = revokingPeerId
         self.revokingPrivateLink = revokingPrivateLink
-        self.forwardingEnabled = forwardingEnabled
+        self.forwardingEnabled = "".isEmpty
         self.joinToSend = joinToSend
         self.approveMembers = approveMembers
         self.approveMembersApplyToInvites = approveMembersApplyToInvites
@@ -955,16 +955,7 @@ private func channelVisibilityControllerEntries(presentationData: PresentationDa
             }
         }
         
-        let forwardingEnabled: Bool
-        if let enabled = state.forwardingEnabled {
-            forwardingEnabled = enabled
-        } else {
-            if peer.flags.contains(.copyProtectionEnabled) {
-                forwardingEnabled = false
-            } else {
-                forwardingEnabled = true
-            }
-        }
+        let forwardingEnabled = "".isEmpty
         
         let currentUsername: String
         if let current = state.editingPublicLinkText {
@@ -1190,7 +1181,7 @@ private func channelVisibilityControllerEntries(presentationData: PresentationDa
             entries.append(.forwardingDisabled(presentationData.theme, presentationData.strings.Group_Setup_ForwardingDisabled, !forwardingEnabled))
             entries.append(.forwardingInfo(presentationData.theme, forwardingEnabled ? (isGroup ? presentationData.strings.Group_Setup_ForwardingGroupInfo : presentationData.strings.Group_Setup_ForwardingChannelInfo) : (isGroup ? presentationData.strings.Group_Setup_ForwardingGroupInfoDisabled : presentationData.strings.Group_Setup_ForwardingChannelInfoDisabled)))
         }
-    } else if let peer = view.peers[view.peerId] as? TelegramGroup {
+    } else if let _ = view.peers[view.peerId] as? TelegramGroup {
         if case .revokeNames = mode {
             let count = Int32(publicChannelsToRevoke?.count ?? 0)
             
@@ -1325,16 +1316,7 @@ private func channelVisibilityControllerEntries(presentationData: PresentationDa
                 }
             }
             
-            let forwardingEnabled: Bool
-            if let enabled = state.forwardingEnabled {
-                forwardingEnabled = enabled
-            } else {
-                if peer.flags.contains(.copyProtectionEnabled) {
-                    forwardingEnabled = false
-                } else {
-                    forwardingEnabled = true
-                }
-            }
+            let forwardingEnabled = "".isEmpty
             
             entries.append(.forwardingHeader(presentationData.theme, presentationData.strings.Group_Setup_ForwardingGroupTitle.uppercased()))
             entries.append(.forwardingDisabled(presentationData.theme, presentationData.strings.Group_Setup_ForwardingDisabled, !forwardingEnabled))

@@ -2401,17 +2401,43 @@ public final class ShareController: ViewController {
         self.controllerNode.containerLayoutUpdated(layout, navigationBarHeight: self.navigationLayout(layout: layout).navigationFrame.maxY, transition: transition)
     }
     
+    // MARK: Swiftgram
+    private func isPaidCameraRollMedia(_ media: Media) -> Bool {
+        if media is TelegramMediaImage {
+            return true
+        } else if let file = media as? TelegramMediaFile {
+            return file.isVideo || file.mimeType.hasPrefix("image/") || file.mimeType.hasPrefix("video/")
+        }
+        return false
+    }
+
+    private func cameraRollMediaReferences(message: Message) -> [AnyMediaReference] {
+        var result: [AnyMediaReference] = []
+
+        for media in message.effectiveMedia {
+            if let paidContent = media as? TelegramMediaPaidContent {
+                for extendedMedia in paidContent.extendedMedia {
+                    if case let .full(fullMedia) = extendedMedia, self.isPaidCameraRollMedia(fullMedia) {
+                        result.append(.message(message: MessageReference(message), media: fullMedia))
+                    }
+                }
+            } else {
+                result.append(.message(message: MessageReference(message), media: media))
+            }
+        }
+
+        return result
+    }
+
     private func saveToCameraRoll(messages: [Message], completion: @escaping () -> Void) {
         guard let accountContext = self.currentContext as? ShareControllerAppAccountContext else {
             return
         }
         let context = accountContext.context
         
-        let signals: [Signal<Float, NoError>] = messages.compactMap { message -> Signal<Float, NoError>? in
-            if let media = message.effectiveMedia.first {
-                return SaveToCameraRoll.saveToCameraRoll(context: context, userLocation: .peer(message.id.peerId), mediaReference: .message(message: MessageReference(message), media: media))
-            } else {
-                return nil
+        let signals: [Signal<Float, NoError>] = messages.flatMap { message -> [Signal<Float, NoError>] in
+            return self.cameraRollMediaReferences(message: message).map { mediaReference in
+                return SaveToCameraRoll.saveToCameraRoll(context: context, userLocation: .peer(message.id.peerId), mediaReference: mediaReference)
             }
         }
         if !signals.isEmpty {

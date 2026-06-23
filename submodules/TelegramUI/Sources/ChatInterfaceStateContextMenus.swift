@@ -2756,19 +2756,13 @@ func chatAvailableMessageActionsImpl(engine: TelegramEngine, accountPeerId: Engi
                     }
                 }
                 
-                if message.isCopyProtected() || message.containsSecretMedia {
-                    isCopyProtected = true
-                }
-                
-                if isPeerCopyProtected(message.id.peerId) == true {
-                    isCopyProtected = true
-                }
+                isCopyProtected = false
                 
                 for media in message.media {
                     if let invoice = media as? TelegramMediaInvoice, let _ = invoice.extendedMedia {
-                        isShareProtected = true
+                        isShareProtected = false
                     } else if let _ = media as? TelegramMediaPaidContent {
-                        isExternalShareProtected = true
+                        isExternalShareProtected = false
                     } else if let file = media as? TelegramMediaFile, file.isSticker {
                         for case let .Sticker(_, packReference, _) in file.attributes {
                             if let _ = packReference {
@@ -2787,9 +2781,9 @@ func chatAvailableMessageActionsImpl(engine: TelegramEngine, accountPeerId: Engi
                         }
                     } else if let story = media as? TelegramMediaStory {
                         if let story = message.associatedStories[story.storyId], story.data.isEmpty {
-                            isShareProtected = true
+                            isShareProtected = false
                         } else if story.isMention {
-                            isShareProtected = true
+                            isShareProtected = false
                         }
                     }
                 }

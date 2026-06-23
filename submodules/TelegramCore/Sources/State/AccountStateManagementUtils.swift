@@ -1046,8 +1046,8 @@ private func finalStateWithUpdatesAndServerTime(accountPeerId: PeerId, postbox: 
                 let (channelId, minId) = (updateChannelAvailableMessagesData.channelId, updateChannelAvailableMessagesData.availableMinId)
                 let peerId = PeerId(namespace: Namespaces.Peer.CloudChannel, id: PeerId.Id._internalFromInt64Value(channelId))
                 updatedState.updateMinAvailableMessage(MessageId(peerId: peerId, namespace: Namespaces.Message.Cloud, id: minId))
-            case let .updateDeleteMessages(updateDeleteMessagesData):
-                updatedState.deleteMessagesWithGlobalIds(updateDeleteMessagesData.messages)
+            case .updateDeleteMessages:
+                break
             case let .updatePinnedMessages(updatePinnedMessagesData):
                 let (flags, peer, messages) = (updatePinnedMessagesData.flags, updatePinnedMessagesData.peer, updatePinnedMessagesData.messages)
                 let peerId = peer.peerId
@@ -4401,41 +4401,35 @@ func replayFinalState(
                         }
                         
                         if !message.flags.contains(.Incoming), message.forwardInfo == nil {
-                            if [Namespaces.Peer.CloudGroup, Namespaces.Peer.CloudChannel].contains(message.id.peerId.namespace), let peer = transaction.getPeer(message.id.peerId), peer.isCopyProtectionEnabled {
- 
-                            } else if message.id.peerId.namespace == Namespaces.Peer.CloudUser, let cachedUserData = transaction.getPeerCachedData(peerId: message.id.peerId) as? CachedUserData, cachedUserData.flags.contains(.copyProtectionEnabled) || cachedUserData.flags.contains(.myCopyProtectionEnabled) {
-                                
-                            } else {
-                                inner: for media in message.media {
-                                    if let file = media as? TelegramMediaFile {
-                                        for attribute in file.attributes {
-                                            switch attribute {
-                                                case let .Sticker(_, packReference, _):
-                                                    if let index = message.index, packReference != nil {
-                                                        if let (currentIndex, _) = recentlyUsedStickers[file.fileId] {
-                                                            if currentIndex < index {
-                                                                recentlyUsedStickers[file.fileId] = (index, file)
-                                                            }
-                                                        } else {
+                            inner: for media in message.media {
+                                if let file = media as? TelegramMediaFile {
+                                    for attribute in file.attributes {
+                                        switch attribute {
+                                            case let .Sticker(_, packReference, _):
+                                                if let index = message.index, packReference != nil {
+                                                    if let (currentIndex, _) = recentlyUsedStickers[file.fileId] {
+                                                        if currentIndex < index {
                                                             recentlyUsedStickers[file.fileId] = (index, file)
                                                         }
+                                                    } else {
+                                                        recentlyUsedStickers[file.fileId] = (index, file)
                                                     }
-                                                case .Animated:
-                                                    if let index = message.index {
-                                                        if let (currentIndex, _) = recentlyUsedGifs[file.fileId] {
-                                                            if currentIndex < index {
-                                                                recentlyUsedGifs[file.fileId] = (index, file)
-                                                            }
-                                                        } else {
+                                                }
+                                            case .Animated:
+                                                if let index = message.index {
+                                                    if let (currentIndex, _) = recentlyUsedGifs[file.fileId] {
+                                                        if currentIndex < index {
                                                             recentlyUsedGifs[file.fileId] = (index, file)
                                                         }
+                                                    } else {
+                                                        recentlyUsedGifs[file.fileId] = (index, file)
                                                     }
-                                                default:
-                                                    break
-                                            }
+                                                }
+                                            default:
+                                                break
                                         }
-                                        break inner
                                     }
+                                    break inner
                                 }
                             }
                         }

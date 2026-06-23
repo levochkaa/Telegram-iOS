@@ -127,7 +127,7 @@ public final class ChatMessageItemAssociatedData: Equatable {
         self.additionalAnimatedEmojiStickers = additionalAnimatedEmojiStickers
         self.forcedResourceStatus = forcedResourceStatus
         self.currentlyPlayingMessageId = currentlyPlayingMessageId
-        self.isCopyProtectionEnabled = isCopyProtectionEnabled
+        self.isCopyProtectionEnabled = false
         self.availableReactions = availableReactions
         self.availableMessageEffects = availableMessageEffects
         self.savedMessageTags = savedMessageTags

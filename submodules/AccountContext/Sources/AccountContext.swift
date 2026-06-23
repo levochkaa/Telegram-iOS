@@ -175,7 +175,7 @@ public struct ChatAvailableMessageActions {
         self.banAuthor = banAuthor
         self.banAuthors = banAuthors
         self.disableDelete = disableDelete
-        self.isCopyProtected = isCopyProtected
+        self.isCopyProtected = false
         self.setTag = setTag
         self.editTags = editTags
     }
