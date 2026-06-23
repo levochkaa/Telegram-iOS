@@ -18,6 +18,65 @@ import TartBuild
 import GenerateProfiles
 
 
+def patch_xcodeparse_xcodeproj_dependency():
+    run_executable_with_output('swift', arguments=[
+        'package',
+        '--package-path',
+        'build-system/XcodeParse',
+        'resolve'
+    ], check_result=True)
+
+    pbx_object_reference_path = os.path.join(
+        'build-system',
+        'XcodeParse',
+        '.build',
+        'checkouts',
+        'XcodeProj',
+        'Sources',
+        'XcodeProj',
+        'Objects',
+        'Project',
+        'PBXObjectReference.swift'
+    )
+    if not os.path.exists(pbx_object_reference_path):
+        raise Exception('XcodeProj checkout is missing PBXObjectReference.swift')
+
+    with open(pbx_object_reference_path, 'r', encoding='utf-8') as file:
+        contents = file.read()
+
+    replacements = [
+        (
+            'class PBXObjectReference: NSObject, Comparable, NSCopying {',
+            'class PBXObjectReference: Comparable, Hashable, NSCopying {'
+        ),
+        (
+            '    /// Hash value.\n'
+            '    override var hash: Int {\n'
+            '        value.hashValue\n'
+            '    }',
+            '    func hash(into hasher: inout Hasher) {\n'
+            '        hasher.combine(value)\n'
+            '    }'
+        ),
+        (
+            '    override func isEqual(_ object: Any?) -> Bool {',
+            '    func isEqual(_ object: Any?) -> Bool {'
+        )
+    ]
+
+    patched_contents = contents
+    for original, replacement in replacements:
+        if original in patched_contents:
+            patched_contents = patched_contents.replace(original, replacement)
+        elif replacement not in patched_contents:
+            raise Exception('XcodeProj PBXObjectReference.swift has unexpected contents')
+
+    if patched_contents != contents:
+        os.chmod(pbx_object_reference_path, os.stat(pbx_object_reference_path).st_mode | 0o200)
+        with open(pbx_object_reference_path, 'w', encoding='utf-8') as file:
+            file.write(patched_contents)
+
+
 class ResolvedCodesigningData:
     def __init__(self, aps_environment, use_xcode_managed_codesigning):
         self.aps_environment = aps_environment
@@ -592,6 +651,7 @@ def generate_project(bazel, arguments):
     )
 
     if target_name == "Telegram":
+        patch_xcodeparse_xcodeproj_dependency()
         run_executable_with_output('swift', arguments=[
             'run',
             '-c',
