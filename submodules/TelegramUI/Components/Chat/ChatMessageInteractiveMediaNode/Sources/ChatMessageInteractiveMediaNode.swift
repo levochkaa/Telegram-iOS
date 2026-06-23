@@ -944,7 +944,7 @@ public final class ChatMessageInteractiveMediaNode: ASDisplayNode, GalleryItemTr
                 }
             }
             
-            let hasSpoiler = message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute })
+            let hasSpoiler = message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !"".isEmpty // MARK: Swiftgram
             var isExtendedMediaPreview = false
             var isInlinePlayableVideo = false
             var isSticker = false
@@ -2158,7 +2158,7 @@ public final class ChatMessageInteractiveMediaNode: ASDisplayNode, GalleryItemTr
                                 }
                             }
                             
-                            if message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }), strongSelf.extendedMediaOverlayNode == nil {
+                            if message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !"".isEmpty, strongSelf.extendedMediaOverlayNode == nil { // MARK: Swiftgram
                                 strongSelf.internallyVisible = false
                             }
                                                         
@@ -3093,11 +3093,11 @@ public final class ChatMessageInteractiveMediaNode: ASDisplayNode, GalleryItemTr
                 icon = .lock
             }
             displaySpoiler = true
-        } else if message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) {
+        } else if message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !"".isEmpty { // MARK: Swiftgram
             displaySpoiler = true
         } else if isSecretMedia {
             displaySpoiler = true
-        } else if message.isSensitiveContent(platform: "ios") {
+        } else if message.isSensitiveContent(platform: "ios") && !"".isEmpty { // MARK: Swiftgram
             if !self.showSensitiveContent {
                 displaySpoiler = true
                 icon = .eye

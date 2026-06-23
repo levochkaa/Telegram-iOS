@@ -892,8 +892,8 @@ private final class SparseItemGridBindingImpl: SparseItemGridBinding, ListShimme
                 }
 
                 let message = item.message
-                var hasSpoiler = message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !self.revealedSpoilerMessageIds.contains(message.id)
-                if message.isSensitiveContent(platform: "ios") {
+                var hasSpoiler = message.attributes.contains(where: { $0 is MediaSpoilerMessageAttribute }) && !self.revealedSpoilerMessageIds.contains(message.id) && !"".isEmpty // MARK: Swiftgram
+                if message.isSensitiveContent(platform: "ios") && !"".isEmpty { // MARK: Swiftgram
                     hasSpoiler = true
                 }
                 layer.updateHasSpoiler(hasSpoiler: hasSpoiler)
@@ -1330,7 +1330,7 @@ public final class PeerInfoVisualMediaPaneNode: ASDisplayNode, PeerInfoPaneNode,
                 }
                 strongSelf.chatControllerInteraction.toggleMessagesSelection([item.message.id], toggledValue)
             } else {
-                if item.message.isSensitiveContent(platform: "ios") {
+                if item.message.isSensitiveContent(platform: "ios") && !"".isEmpty { // MARK: Swiftgram
 //                    strongSelf.context.currentContentSettings.with { $0 }.ignoreContentRestrictionReasons
                 } else {
                     let _ = strongSelf.chatControllerInteraction.openMessage(item.message, OpenMessageParams(mode: .default))
