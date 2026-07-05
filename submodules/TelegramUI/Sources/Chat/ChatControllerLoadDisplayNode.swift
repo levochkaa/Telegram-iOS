@@ -128,6 +128,9 @@ import GlobalControlPanelsContext
 import ComponentFlow
 import ComponentDisplayAdapters
 
+// MARK: Swiftgram
+import SGSimpleSettings
+
 extension ChatControllerImpl {
     func reloadChatLocation(chatLocation: ChatLocation, chatLocationContextHolder: Atomic<ChatLocationContextHolder?>, historyNode: ChatHistoryListNodeImpl, apply: @escaping ((ContainedViewLayoutTransition?) -> Void) -> Void) {
         self.contentDataReady.set(false)
@@ -225,16 +228,35 @@ extension ChatControllerImpl {
         })
     }
     
+    // MARK: Swiftgram
+    private func hiddenBusinessBotAvatarPeer() -> EnginePeer? {
+        let businessBotPanelPlacement = SGSimpleSettings.BusinessBotTitlePanelPlacement(rawValue: SGSimpleSettings.shared.businessBotTitlePanelPlacement) ?? .swiftgram
+        guard businessBotPanelPlacement == .hidden else {
+            return nil
+        }
+        return self.contentData?.state.contactStatus?.managingBot?.bot
+    }
+
+    // MARK: Swiftgram
+    func updateBusinessBotAvatarIndicator() {
+        (self.chatInfoNavigationButton?.buttonItem.customDisplayNode as? ChatAvatarNavigationNode)?.setBusinessBotIndicator(
+            context: self.context,
+            theme: self.presentationData.theme,
+            peer: self.hiddenBusinessBotAvatarPeer()
+        )
+    }
+
     func contentDataUpdated(synchronous: Bool, forceAnimationTransition: ContainedViewLayoutTransition?, previousState: ContentData.State) {
         guard let contentData = self.contentData else {
             return
         }
+        let businessBotAvatarPeer = self.hiddenBusinessBotAvatarPeer() // MARK: Swiftgram
         self.navigationBar?.userInfo = contentData.state.navigationUserInfo
         
         if let infoAvatar = contentData.state.infoAvatar {
             switch infoAvatar {
             case let .peer(peer, imageOverride, contextActionIsEnabled, accessibilityLabel):
-                (self.chatInfoNavigationButton?.buttonItem.customDisplayNode as? ChatAvatarNavigationNode)?.setPeer(context: self.context, theme: self.presentationData.theme, peer: peer, overrideImage: imageOverride, synchronousLoad: synchronous)
+                (self.chatInfoNavigationButton?.buttonItem.customDisplayNode as? ChatAvatarNavigationNode)?.setPeer(context: self.context, theme: self.presentationData.theme, peer: peer, overrideImage: imageOverride, synchronousLoad: synchronous, businessBotPeer: businessBotAvatarPeer) // MARK: Swiftgram
                 (self.chatInfoNavigationButton?.buttonItem.customDisplayNode as? ChatAvatarNavigationNode)?.contextActionIsEnabled = contextActionIsEnabled
                 self.chatInfoNavigationButton?.buttonItem.accessibilityLabel = accessibilityLabel
             case let .emojiStatus(content, contextActionIsEnabled):
@@ -243,6 +265,7 @@ extension ChatControllerImpl {
                 self.chatInfoNavigationButton?.buttonItem.accessibilityLabel = self.presentationData.strings.Conversation_ContextMenuOpenProfile
             }
         } else {
+            (self.chatInfoNavigationButton?.buttonItem.customDisplayNode as? ChatAvatarNavigationNode)?.setBusinessBotIndicator(context: self.context, theme: self.presentationData.theme, peer: nil) // MARK: Swiftgram
             (self.chatInfoNavigationButton?.buttonItem.customDisplayNode as? ChatAvatarNavigationNode)?.contextActionIsEnabled = false
         }
         

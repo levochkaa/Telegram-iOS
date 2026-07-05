@@ -27,6 +27,9 @@ public final class ChatAvatarNavigationNode: ASDisplayNode {
     
     private let containerNode: ContextControllerSourceNode
     public var avatarNode: AvatarNode
+    // MARK: Swiftgram
+    private var businessBotAvatarNode: AvatarNode?
+    private var businessBotPeer: EnginePeer?
     private var avatarVideoNode: AvatarVideoNode?
     
     public private(set) var avatarStoryView: ComponentView<Empty>?
@@ -60,6 +63,15 @@ public final class ChatAvatarNavigationNode: ASDisplayNode {
             }
         }
     }
+    // MARK: Swiftgram
+    public func updateNavigationBarStyle(_ style: NavigationBarStyle) {
+        if case .glass = style {
+            self.containerNode.animateScale = false
+        } else {
+            self.containerNode.animateScale = true
+        }
+    }
+    public var businessBotAction: ((EnginePeer) -> Void)? // MARK: Swiftgram
         
     override public init() {
         self.containerNode = ContextControllerSourceNode()
@@ -116,6 +128,52 @@ public final class ChatAvatarNavigationNode: ASDisplayNode {
         
         self.avatarNode.isHidden = true
         self.communityAvatarBadgeBackgroundView?.isHidden = true
+        self.setBusinessBotIndicator(context: context, theme: nil, peer: nil) // MARK: Swiftgram
+    }
+
+    // MARK: Swiftgram
+    public func setBusinessBotIndicator(context: AccountContext, theme: PresentationTheme?, peer: EnginePeer?) {
+        guard let peer, let theme else {
+            self.businessBotPeer = nil
+            if let businessBotAvatarNode = self.businessBotAvatarNode {
+                self.businessBotAvatarNode = nil
+                businessBotAvatarNode.removeFromSupernode()
+            }
+            return
+        }
+        self.businessBotPeer = peer
+
+        let avatarNode: AvatarNode
+        if let current = self.businessBotAvatarNode {
+            avatarNode = current
+        } else {
+            avatarNode = AvatarNode(font: avatarPlaceholderFont(size: 8.0))
+            avatarNode.view.isUserInteractionEnabled = true
+            self.businessBotAvatarNode = avatarNode
+            self.containerNode.addSubnode(avatarNode)
+
+            let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.businessBotTapGesture(_:)))
+            avatarNode.view.addGestureRecognizer(tapRecognizer)
+        }
+
+        let avatarSize = CGSize(width: 18.0, height: 18.0)
+        let avatarFrame = CGRect(origin: CGPoint(x: self.containerNode.bounds.width - avatarSize.width, y: self.containerNode.bounds.height - avatarSize.height), size: avatarSize)
+
+        avatarNode.frame = avatarFrame
+        avatarNode.view.layer.cornerRadius = avatarSize.width / 2.0
+        avatarNode.view.layer.borderWidth = 1.0
+        avatarNode.view.layer.borderColor = theme.rootController.navigationBar.opaqueBackgroundColor.cgColor
+        avatarNode.updateSize(size: avatarSize)
+        avatarNode.setPeer(context: context, theme: theme, peer: peer, displayDimensions: avatarSize)
+
+        self.containerNode.view.bringSubviewToFront(avatarNode.view)
+    }
+
+    @objc private func businessBotTapGesture(_ recognizer: UITapGestureRecognizer) {
+        guard recognizer.state == .ended, let businessBotPeer = self.businessBotPeer else {
+            return
+        }
+        self.businessBotAction?(businessBotPeer)
     }
     
     public func setPeer(
@@ -128,7 +186,8 @@ public final class ChatAvatarNavigationNode: ASDisplayNode {
         clipStyle: AvatarNodeClipStyle = .round,
         synchronousLoad: Bool = false,
         displayDimensions: CGSize = CGSize(width: 60.0, height: 60.0),
-        storeUnrounded: Bool = false
+        storeUnrounded: Bool = false,
+        businessBotPeer: EnginePeer? = nil // MARK: Swiftgram
     ) {
         self.context = context
         
@@ -223,6 +282,7 @@ public final class ChatAvatarNavigationNode: ASDisplayNode {
         if let communityAvatarBadgeBackgroundView = self.communityAvatarBadgeBackgroundView, !communityAvatarBadgeBackgroundView.isHidden {
             self.containerNode.view.bringSubviewToFront(communityAvatarBadgeBackgroundView)
         }
+        self.setBusinessBotIndicator(context: context, theme: theme, peer: businessBotPeer) // MARK: Swiftgram
         
         if let peer = peer, peer.isPremium {
             self.cachedDataDisposable.set((context.account.postbox.peerView(id: peer.id)

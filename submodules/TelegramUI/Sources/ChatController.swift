@@ -5991,6 +5991,7 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
         switch chatLocation {
         case .peer, .replyThread:
             let avatarNode = ChatAvatarNavigationNode()
+            avatarNode.updateNavigationBarStyle(.glass) // MARK: Swiftgram
             avatarNode.contextAction = { [weak self] node, gesture in
                 guard let strongSelf = self, let peer = strongSelf.presentationInterfaceState.renderedPeer?.chatMainPeer else {
                     return
@@ -6332,6 +6333,13 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
                     self?.canReadHistory.set(true)
                 }
                 strongSelf.presentInGlobalOverlay(contextController)
+            }
+            // MARK: Swiftgram
+            avatarNode.businessBotAction = { [weak self] peer in
+                guard let strongSelf = self, let navigationController = strongSelf.navigationController as? NavigationController else {
+                    return
+                }
+                strongSelf.context.sharedContext.navigateToChatController(NavigateToChatControllerParams(navigationController: navigationController, context: strongSelf.context, chatLocation: .peer(peer), keepStack: .always, purposefulAction: {}, peekData: nil))
             }
             
             chatInfoButtonItem = UIBarButtonItem(customDisplayNode: avatarNode)!
@@ -7260,6 +7268,7 @@ public final class ChatControllerImpl: TelegramBaseController, ChatController, G
         }
         
         self.navigationBar?.updatePresentationData(NavigationBarPresentationData(theme: navigationBarTheme, strings: NavigationBarStrings(presentationStrings: self.presentationData.strings)), transition: .immediate)
+        self.avatarNode?.updateNavigationBarStyle(navigationBarTheme.style) // MARK: Swiftgram
         
         self.moreBarButton.updateColor(color: presentationTheme.chat.inputPanel.panelControlColor)
     }

@@ -302,6 +302,7 @@ final class ChatManagingBotTitlePanelNode: ChatTitleAccessoryPanelNode {
             a(.default)
 
             SGSimpleSettings.shared.businessBotTitlePanelPlacement = SGSimpleSettings.BusinessBotTitlePanelPlacement.hidden.rawValue
+            (self?.interfaceInteraction?.chatController() as? ChatControllerImpl)?.updateBusinessBotAvatarIndicator() // MARK: Swiftgram
             self?.interfaceInteraction?.requestLayout(.animated(duration: 0.2, curve: .easeInOut))
         })))
         
