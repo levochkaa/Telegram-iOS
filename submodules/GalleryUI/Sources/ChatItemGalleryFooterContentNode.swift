@@ -1521,11 +1521,12 @@ final class ChatItemGalleryFooterContentNode: GalleryFooterContentNode, ASScroll
         self.playbackControlButton.frame = CGRect(origin: CGPoint(x: floor((width - 44.0) / 2.0), y: panelHeight - buttonPanelInsets.bottom - 44.0 + floorToScreenPixels((44.0 - 44.0) * 0.5)), size: CGSize(width: 44.0, height: 44.0))
         self.playPauseIconNode.frame = self.playbackControlButton.bounds.offsetBy(dx: 2.0, dy: -2.0)
         
-        if playbackControlsVisible, let playbackButtonPanelView = self.playbackButtonPanel.view {
-            if playbackButtonPanelView.superview == nil {
-                self.contentNode.view.addSubview(playbackButtonPanelView)
+        // MARK: Swiftgram
+        if playbackControlsVisible, let playbackButtonPanelView = self.playbackButtonPanel.view, let buttonPanelView = self.buttonPanel.view as? GlassControlPanelComponent.View {
+            if playbackButtonPanelView.superview !== buttonPanelView.sgGlassContentView {
+                buttonPanelView.sgGlassContentView.addSubview(playbackButtonPanelView)
             }
-            let playbackPanelFrame = CGRect(origin: CGPoint(x: floor((width - playbackPanelSize.width) * 0.5), y: buttonPanelFrame.minY), size: playbackPanelSize)
+            let playbackPanelFrame = CGRect(origin: CGPoint(x: floor((buttonPanelSize.width - playbackPanelSize.width) * 0.5), y: 0.0), size: playbackPanelSize)
             ComponentTransition(transition).setFrame(view: playbackButtonPanelView, frame: playbackPanelFrame)
         } else if let playbackButtonPanelView = self.playbackButtonPanel.view, playbackButtonPanelView.superview != nil {
             playbackButtonPanelView.removeFromSuperview()

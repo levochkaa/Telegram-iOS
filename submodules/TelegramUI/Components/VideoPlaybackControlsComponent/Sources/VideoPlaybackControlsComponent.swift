@@ -192,16 +192,20 @@ public final class VideoPlaybackControlsComponent: Component {
             let centerButtonFrame = CGRect(origin: CGPoint(x: component.displaySeekControls ? (component.layoutParams.sideButtonSize + component.layoutParams.spacing) : 0.0, y: floorToScreenPixels((size.height - component.layoutParams.centerButtonSize) * 0.5)), size: CGSize(width: component.layoutParams.centerButtonSize, height: component.layoutParams.centerButtonSize)).offsetBy(dx: containerInset, dy: containerInset)
             let rightButtonFrame = CGRect(origin: CGPoint(x: size.width - component.layoutParams.sideButtonSize, y: floorToScreenPixels((size.height - component.layoutParams.sideButtonSize) * 0.5)), size: CGSize(width: component.layoutParams.sideButtonSize, height: component.layoutParams.sideButtonSize)).offsetBy(dx: containerInset, dy: containerInset)
             
-            if isVisibleChanged && !transition.animation.isImmediate {
+            if !isFooter && isVisibleChanged && !transition.animation.isImmediate { // MARK: Swiftgram
                 self.backgroundContainer.isHidden = true
                 self.backgroundContainer.isHidden = false
             }
+            self.backgroundContainer.isHidden = isFooter // MARK: Swiftgram
             
             transition.setFrame(view: self.backgroundContainer, frame: CGRect(origin: CGPoint(), size: size).insetBy(dx: -containerInset, dy: -containerInset))
             self.backgroundContainer.update(size: CGSize(width: size.width + containerInset * 2.0, height: size.height + containerInset * 2.0), isDark: true, transition: transition)
             
             let areSideButtonsVisible = component.isVisible && component.displaySeekControls
-            let buttonsTintColor: GlassBackgroundView.TintColor = .init(kind: .custom(style: .clear, color: UIColor(white: 0.0, alpha: 0.2)))
+            // MARK: Swiftgram
+            let buttonsTintColor: GlassBackgroundView.TintColor = isFooter
+                ? .init(kind: .panel)
+                : .init(kind: .custom(style: .clear, color: UIColor(white: 0.0, alpha: 0.2)))
             transition.setFrame(view: self.groupBackgroundView, frame: CGRect(origin: CGPoint(), size: size))
             self.groupBackgroundView.update(size: size, cornerRadius: size.height * 0.5, isDark: true, tintColor: buttonsTintColor, isInteractive: isFooter, isVisible: component.isVisible && isFooter, transition: transition)
             
